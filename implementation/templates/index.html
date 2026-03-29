@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Food Plus{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Food Weight & Diet Analyzer</h1>
+  <p class="help">
+    Upload an image to detect food items, estimate weight, and get simple diet recommendations.
+  </p>
+
+  {% if not session.get('user') %}
+  <div class="notice notice--error">
+    You are not logged in. Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('signup') }}">sign up</a> to use the full experience.
+  </div>
+  {% endif %}
+
+  <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data">
+    <div class="form-row">
+      <label for="image">Select an image:</label>
+      <input id="image" name="image" type="file" accept="image/*" required />
+    </div>
+
+    <fieldset>
+      <legend>User info (for diet recommendation)</legend>
+
+      <div class="form-row">
+        <label for="age">Age</label>
+        <input id="age" name="age" type="number" min="0" value="30" required />
+      </div>
+
+      <div class="form-row">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="weight">Weight (kg)</label>
+        <input id="weight" name="weight" type="number" min="0" step="0.1" value="70" required />
+      </div>
+
+      <div class="form-row">
+        <label for="height">Height (cm)</label>
+        <input id="height" name="height" type="number" min="0" step="0.1" value="170" required />
+      </div>
+
+      <div class="form-row">
+        <label for="disease">Chronic condition</label>
+        <select id="disease" name="disease">
+          <option value="none">None</option>
+          <option value="diabetes">Diabetes</option>
+          <option value="hypertension">Hypertension</option>
+          <option value="obesity">Obesity</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="severity">Severity</label>
+        <select id="severity" name="severity">
+          <option value="mild">Mild</option>
+          <option value="moderate">Moderate</option>
+          <option value="severe">Severe</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="imbalance_score">Imbalance score (0–1)</label>
+        <input id="imbalance_score" name="imbalance_score" type="number" min="0" max="1" step="0.01" value="0.0" />
+      </div>
+    </fieldset>
+
+    <div style="margin-top: 1rem;">
+      <button type="submit">Analyze</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Food Analyzer{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+
+  <body>
+    <div class="overlay"></div>
+    <div class="container">
+      <header class="nav">
+        <div>
+          <a href="{{ url_for('index') }}"><strong>Food Plus</strong></a>
+        </div>
+        <div class="nav__links">
+          {% if session.get('user') %}
+          <span>Hi, {{ session.user }}</span>
+          <a href="{{ url_for('index') }}">Home</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+          {% else %}
+          <a href="{{ url_for('login') }}">Login</a>
+          <a href="{{ url_for('signup') }}">Sign Up</a>
+          {% endif %}
+        </div>
+      </header>
+
+      <main>
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="footer">
+        Built with Flask • For demonstration purposes only
+      </footer>
+    </div>
+  </body>
+</html>

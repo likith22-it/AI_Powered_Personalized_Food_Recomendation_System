@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Results | Food Plus{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Analysis Results</h1>
+  <p>
+    Detected <strong>{{ detections|length }}</strong> object(s). For each detected food item
+    the table below displays the predicted class, YOLO confidence, estimated average depth,
+    and a very rough weight estimate.
+  </p>
+
+  {% if diet_result %}
+  <div class="notice">
+    <h2 style="margin-top:0;">Diet recommendation</h2>
+    <p><strong>Recommended diet:</strong> {{ diet_result.Recommended_Diet }}</p>
+
+    {% if diet_result.Avoid_Foods and diet_result.Avoid_Foods | length > 0 %}
+    <p class="notice--error">
+      <strong> Avoid these detected items:</strong>
+      {{ diet_result.Avoid_Foods | join(", ") }}
+    </p>
+    {% else %}
+    <p class="notice--success">
+      No detected items fall into the avoid category.
+    </p>
+    {% endif %}
+
+    {% if diet_result.Limit_Foods and diet_result.Limit_Foods | length > 0 %}
+    <p>
+      <strong>Limit these detected items:</strong>
+      {{ diet_result.Limit_Foods | join(", ") }}
+    </p>
+    {% endif %}
+
+    {% if diet_result.Suggested_Foods and diet_result.Suggested_Foods | length > 0 %}
+    <p>
+      <strong>Suggested foods to choose instead:</strong>
+      {{ diet_result.Suggested_Foods | join(", ") }}
+    </p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="image-wrapper">
+    <img src="data:image/jpeg;base64,{{ image_data }}" alt="Annotated result" />
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Label</th>
+        <th>YOLO confidence</th>
+        <th>Avg depth</th>
+        <th>Estimated grams</th>
+      <th>Nutrition (est.)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for det in detections %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ det.label }}</td>
+      <td>{{ "%0.2f"|format(det.confidence) }}</td>
+      <td>{{ "%0.2f"|format(det.avg_depth) }}</td>
+      <td>{{ "%0.0f"|format(det.grams) }}</td>
+      <td>
+        {% if det.nutrition %}
+        <div style="font-size: 0.9rem; line-height: 1.25;">
+          <strong>cal:</strong> {{ det.nutrition.Calories | default(0) }} &bull;
+          <strong>P:</strong> {{ det.nutrition.Protein_g | default(0) }}g &bull;
+          <strong>C:</strong> {{ det.nutrition.Carbohydrates_g | default(0) }}g &bull;
+          <strong>F:</strong> {{ det.nutrition.Fat_g | default(0) }}g<br />
+          <strong>Sugar:</strong> {{ det.nutrition.Sugar_g | default(0) }}g &bull;
+          <strong>Fiber:</strong> {{ det.nutrition.Fiber_g | default(0) }}g
+        </div>
+        {% else %}
+        <span style="color: rgba(0,0,0,0.6);">No nutrition data</span>
+        {% endif %}
+      </td>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a class="button" href="{{ url_for('index') }}">Analyze another image</a>
+</div>
+
+{% if detections %}
+<div class="card" style="margin-top: 1.5rem;">
+  <h2>Nutrition facts (per typical serving)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Food</th>
+        <th>Protein (g)</th>
+        <th>Carbs (g)</th>
+        <th>Fat (g)</th>
+        <th>Sugar (g)</th>
+        <th>Fiber (g)</th>
+        <th>Sodium (mg)</th>
+        <th>Vit C (mg)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for det in detections %}
+      <tr>
+        <td>{{ det.label }}</td>
+        <td>{{ det.nutrition.get('Protein_g', '-') }}</td>
+        <td>{{ det.nutrition.get('Carbohydrates_g', '-') }}</td>
+        <td>{{ det.nutrition.get('Fat_g', '-') }}</td>
+        <td>{{ det.nutrition.get('Sugar_g', '-') }}</td>
+        <td>{{ det.nutrition.get('Fiber_g', '-') }}</td>
+        <td>{{ det.nutrition.get('Sodium_mg', '-') }}</td>
+        <td>{{ det.nutrition.get('Vitamin_C_mg', '-') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
